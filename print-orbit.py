@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
+import argparse
 import sys
+
+from random import randint
 
 
 def collatz(num):
@@ -14,21 +17,44 @@ def collatz(num):
     return orbit
 
 
-def main():
-    if len(sys.argv) < 2:
-        print('usage: print-orbit.py [number]')
-        return
-    arg = sys.argv[1]
-    try:
-        num = int(arg)
-    except ValueError:
-        print('failed to parse the given argument "{}" as integer'.format(arg))
-        return
+def print_orbit(num):
     orbit = collatz(num)
-    path_record = max(orbit)
+    path_record = max(orbit + [num])
     print('length: {}, path record: {}'.format(len(orbit), path_record))
     for i in orbit:
         print(i, hex(i), bin(i))
+
+
+def random_sample(nsamples):
+    orbits = []
+    for i in range(nsamples):
+        num = randint(0, 0xffffffff)
+        orbit = collatz(num)
+        path_record = max(orbit + [num])
+        orbits.append((num, len(orbit), path_record,))
+    for oo in orbits:
+        n, o, p = oo
+        overflow = ''
+        if p > 0xffffffff:
+            overflow = '  #  << OVERFLOW'
+        print('({}, {}, {}),{}'.format(n, o, p, overflow))
+
+
+def run(args):
+    if args.number is not None:
+        return print_orbit(args.number)
+    random_sample(args.nsamples)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-r', '--random', help='random sample N orbits',
+                       action='store', dest='nsamples', type=int)
+    group.add_argument('-o', '--orbit', help='compute and print a single orbit',
+                       action='store', dest='number', type=int)
+    args = parser.parse_args()
+    run(args)
 
 
 if __name__ == '__main__':

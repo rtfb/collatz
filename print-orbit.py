@@ -25,7 +25,8 @@ def main():
         print('failed to parse the given argument "{}" as integer'.format(arg))
         return
     orbit = collatz(num)
-    print('length: ', len(orbit))
+    path_record = max(orbit)
+    print('length: {}, path record: {}'.format(len(orbit), path_record))
     for i in orbit:
         print(i, hex(i), bin(i))
 
